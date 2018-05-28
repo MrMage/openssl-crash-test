@@ -20,22 +20,3 @@ RUN swift build -c $config --product openssl-crash-test \
   && rm -rf .build/$config/*
 
 RUN ./openssl-crash-test
-
-# Runtime
-FROM ibmcom/swift-ubuntu-runtime:4.1 AS runtime
-
-RUN groupadd -r timing && useradd --no-log-init -r -g timing timing
-
-RUN apt-get update \
-  && apt-get install -y libatomic1 libcurl3 libicu52 libxml2 \
-#  && apt-get autoremove -y \
-  && apt-get dist-upgrade -y \
-  && apt-get clean -y \
-  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-COPY --from=build /root/timing-sync/openssl-crash-test /
-
-USER timing:timing
-EXPOSE 5050
-
-ENTRYPOINT ["/openssl-crash-test"]
